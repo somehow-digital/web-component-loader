@@ -1,0 +1,25 @@
+{
+	"name": "@somehow-digital/web-component-loaderr",
+	"description": "Simple web component loader for loading web components lazily.",
+	"version": "0.0.0",
+	"type": "module",
+	"license": "MIT",
+	"private": true,
+	"engines": {
+		"node": ">=16",
+		"npm": ">=8"
+	},
+	"scripts": {
+		"lint": "prettier --check .",
+		"format": "prettier --write .",
+		"prepare": "husky install"
+	},
+	"devDependencies": {
+		"@somehow-digital/prettier-config": "^1.0.1",
+		"@somehow-digital/typescript-config": "^1.0.1",
+		"husky": "^8.0.3",
+		"lint-staged": "^13.1.2",
+		"prettier": "2.8.4",
+		"typescript": "^4.9.5"
+	}
+}
