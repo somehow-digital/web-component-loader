@@ -1,9 +1,9 @@
 # Web Component Loader
 > Utility for lazy-loading web components.
 
-It uses the `IntersectionObserver` API to defer loading components until they enter the viewport.
+`Web Component Loader` uses the `IntersectionObserver` API to defer loading components until they enter the viewport.
 It also uses the `MutationObserver` API to observe the DOM for newly inserted components.
-This allows you to dynamically insert components into the DOM and have them loaded automatically.
+This allows to dynamically insert components into the DOM and have them loaded automatically.
 
 - 📦 **small**: 1.5kb minified
 - 🚀 **fast**: Uses IntersectionObserver to defer loading components
@@ -18,7 +18,7 @@ npm install @somehow-digital/web-component-loader
 
 ## Usage
 
-Web Component Loader provides a class and a function for loading components.
+`Web Component Loader` provides a class and a function for loading components.
 The utility function is a wrapper around the class. The class is more flexible,
 but the function is more convenient.
 
@@ -39,8 +39,8 @@ loader.run();
 
 **Function**
 
-The function returns a function that you can call to run the loader.
-This is useful if you want to run the loader after some other code has run.
+The function returns a function that can be called to run the loader.
+This is useful to run the loader independently of the component definitions.
 
 ```typescript
 import { define } from '@somehow-digital/web-component-loader';
@@ -64,6 +64,7 @@ See file `loader.ts` for the default values.
 | `lazy`     | `boolean`     | `true`     |   ✅    |    ✅    | Whether to load components lazily.                            |
 | `defer`    | `boolean`     | `true`     |   ✅    |    ✅    | Whether to defer loading components on entering the viewport. |
 | `observe`  | `boolean`     | `true`     |   ✅    |         | Whether to observe the DOM for newly inserted components.     |
+| `selector` | `function`    | `...`      |   ✅    |         | Selector to use when searching for components.                |
 | `excludes` | `string[]`    | `[...]`    |   ✅    |         | An array of element names to exclude from processing.         |
 
 ---
