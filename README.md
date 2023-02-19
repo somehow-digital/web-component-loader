@@ -1,8 +1,6 @@
 # Web Component Loader
 > Utility for lazy-loading web components.
 
----
-
 It uses the `IntersectionObserver` API to defer loading components until they enter the viewport.
 It also uses the `MutationObserver` API to observe the DOM for newly inserted components.
 This allows you to dynamically insert components into the DOM and have them loaded automatically.
@@ -35,7 +33,7 @@ import Loader from '@somehow-digital/web-component-loader';
 
 const loader = new Loader(/* options */);
 loader.define('component-one', () => import('component-one.js'));
-loader.define('component-two', () => import('component-two.js'), { defer: false });
+loader.define('component-two', () => import('component-two.js'), /* options */);
 loader.run();
 ```
 
@@ -49,13 +47,14 @@ import { define } from '@somehow-digital/web-component-loader';
 
 define({
   'component-one': () => import('component-one.js'),
-  'component-two': [() => import('component-two.js'), { defer: false }],
+  'component-two': [() => import('component-two.js'), /* options */],
 })(/* options */);
 ```
 
 ### Options
 
-The options object can be passed to the `define` function or the `Loader` class.
+Options can be passed to the `define` function or the `Loader` class.
+Options can be set globally or some can be set per component definition.
 See file `loader.ts` for the default values.
 
 | Option     | Type          | Default    | Global | Element | Description                                                   |
