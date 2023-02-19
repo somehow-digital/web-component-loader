@@ -1,40 +1,44 @@
 import { execute } from './utility';
 
-export interface Options {
-	context?: HTMLElement;
-	margin?: string;
-	lazy?: boolean;
-	defer?: boolean;
-	observe?: boolean;
-	excludes?: string[];
-}
-
-export interface ElementDefinition {
-	name?: string;
-	callable?: () => Promise<CustomElementConstructor>;
-	options?: ElementOptions;
+export interface LoaderOptions {
+	context: HTMLElement | null;
+	margin: string;
+	lazy: boolean;
+	defer: boolean;
+	observe: boolean;
+	selector: (name: string) => string;
+	excludes: string[];
 }
 
 export interface ElementOptions {
-	lazy?: boolean;
-	defer?: boolean;
+	lazy: boolean;
+	defer: boolean;
+}
+
+export interface ElementDefinition {
+	name: string;
+	callable: () => Promise<CustomElementConstructor>;
+	options: ElementOptions;
 }
 
 export default class Loader {
-	private readonly options: Options;
+	private running: boolean = false;
+	private readonly options: LoaderOptions;
 	private readonly registry: Map<string, ElementDefinition>;
 	private readonly intersector: IntersectionObserver;
 	private readonly mutator: MutationObserver;
 
-	public static defaults: Options = {
+	public static defaults: LoaderOptions = {
+		context: null,
 		margin: '0%',
 		lazy: true,
 		defer: true,
 		observe: true,
+		selector: (name) => `${name}:not(:defined)`,
 		excludes: ['html', 'head', 'meta', 'link', 'style', 'script', 'noscript', 'template'],
 	};
 
-	public constructor(options?: Options) {
+	public constructor(options?: Partial<LoaderOptions>) {
 		this.options = { ...Loader.defaults, ...options };
 		this.registry = new Map();
 
@@ -46,7 +50,7 @@ export default class Loader {
 		this.mutator = new MutationObserver(this.mutate.bind(this));
 	}
 
-	public define(name: string, callable: () => Promise<CustomElementConstructor>, options?: ElementOptions): void {
+	public define(name: string, callable: () => Promise<CustomElementConstructor>, options?: Partial<ElementOptions>): void {
 		this.registry.set(name, {
 			name,
 			callable,
@@ -56,7 +60,10 @@ export default class Loader {
 			},
 		});
 
-		// todo: load component immediately if loader is already initialized
+		if (this.running) {
+			const context = this.options.context ?? window.document.documentElement;
+			this.process(context, name);
+		}
 	}
 
 	public run(): void {
@@ -70,23 +77,25 @@ export default class Loader {
 		}
 
 		this.process(context);
+
+		this.running = true;
 	}
 
-	private process(context: HTMLElement): void {
-		this.registry.forEach((definition, name) => {
-			if (!window.customElements.get(name)) {
-				if (definition.options?.lazy) {
-					this.discover(context);
-				} else {
-					this.load(name, false);
-				}
+	private process(context: HTMLElement, name?: string): void {
+		const definitions = name ? [this.registry.get(name)] : [...this.registry.entries()];
+
+		definitions.forEach((definition: ElementDefinition) => {
+			if (definition.options?.lazy) {
+				this.discover(context);
+			} else {
+				this.load(definition.name, false);
 			}
 		});
 	}
 
 	private discover(context: HTMLElement): void {
-		this.registry.forEach((definition, name) => {
-			const selector = `${name}:not(:defined)`;
+		this.registry.forEach((definition) => {
+			const selector = this.options.selector(definition.name);
 			const elements = [...context.querySelectorAll(selector)];
 
 			if (context.matches(selector)) {
@@ -97,32 +106,31 @@ export default class Loader {
 				if (definition.options?.defer) {
 					elements.forEach((element) => this.intersector.observe(element));
 				} else {
-					this.load(name, false);
+					this.load(definition.name, false);
 				}
 			}
 		});
 	}
 
 	private load(name: string, defer: boolean = true): void {
-		execute(defer)(() => {
-			const definition = this.registry.get(name);
+		const definition = this.registry.get(name);
 
-			if (definition && definition.callable) {
+		if (definition && !window.customElements.get(definition.name)) {
+			execute(defer)(() => {
 				definition.callable().then((constructor) => {
 					if (constructor) {
-						window.customElements.define(name, constructor);
+						window.customElements.define(definition.name, constructor);
 					}
 				});
-			}
-		});
+			});
+		}
 	}
 
 	private intersect(entries: IntersectionObserverEntry[]): void {
 		entries.forEach((entry) => {
 			if (entry.isIntersecting) {
+				this.intersector.unobserve(entry.target);
 				this.load(entry.target.tagName.toLowerCase());
-
-				// todo: remove elements with same tag-name from intersector
 			}
 		});
 	}

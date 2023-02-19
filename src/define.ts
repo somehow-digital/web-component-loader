@@ -1,4 +1,4 @@
-import Loader, { Options, ElementOptions } from './loader';
+import Loader, {LoaderOptions, ElementOptions, ElementDefinition} from './loader';
 
 interface Definitions {
 	[name: string]: () => Promise<CustomElementConstructor> | [
@@ -7,7 +7,7 @@ interface Definitions {
 	];
 }
 
-export default function define(definitions: Definitions): (options?: Options) => Loader {
+export default function define(definitions: Definitions): (options?: LoaderOptions) => Loader {
 	return (options) => {
 		const loader = new Loader(options);
 
