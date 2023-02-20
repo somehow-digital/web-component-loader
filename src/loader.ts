@@ -1,17 +1,15 @@
 import { execute } from './utility';
 
 export interface LoaderOptions {
-	context: HTMLElement | null;
+	context: HTMLElement;
 	margin: string;
-	lazy: boolean;
 	defer: boolean;
 	observe: boolean;
 	selector: (name: string) => string;
-	excludes: string[];
+	ignore: string[];
 }
 
 export interface ElementOptions {
-	lazy: boolean;
 	defer: boolean;
 }
 
@@ -29,13 +27,12 @@ export default class Loader {
 	private readonly mutator: MutationObserver;
 
 	public static defaults: LoaderOptions = {
-		context: null,
+		context: window.document.documentElement,
 		margin: '0%',
-		lazy: true,
 		defer: true,
 		observe: true,
 		selector: (name) => `${name}:not(:defined)`,
-		excludes: ['html', 'head', 'meta', 'link', 'style', 'script', 'noscript', 'template'],
+		ignore: ['html', 'head', 'meta', 'link', 'style', 'script', 'noscript', 'template'],
 	};
 
 	public constructor(options?: Partial<LoaderOptions>) {
@@ -43,58 +40,51 @@ export default class Loader {
 		this.registry = new Map();
 
 		this.intersector = new IntersectionObserver(this.intersect.bind(this), {
-			root: this.options.context,
+			root: options?.context ?? null,
 			rootMargin: this.options.margin,
-		});
+		} as IntersectionObserverInit);
 
 		this.mutator = new MutationObserver(this.mutate.bind(this));
 	}
 
 	public define(name: string, callable: () => Promise<CustomElementConstructor>, options?: Partial<ElementOptions>): void {
-		this.registry.set(name, {
+		const definition = {
 			name,
 			callable,
 			options: {
-				lazy: options?.lazy ?? this.options.lazy,
 				defer: options?.defer ?? this.options.defer,
 			},
-		});
+		};
+
+		this.registry.set(name, definition);
 
 		if (this.running) {
-			const context = this.options.context ?? window.document.documentElement;
-			this.process(context, name);
+			this.discover(this.options.context, [definition]);
 		}
 	}
 
 	public run(): void {
-		const context = this.options.context ?? window.document.documentElement;
+		this.running = true;
 
 		if (this.options.observe) {
-			this.mutator.observe(context, {
+			this.mutator.observe(this.options.context, {
 				childList: true,
 				subtree: true,
 			});
 		}
 
-		this.process(context);
-
-		this.running = true;
+		this.discover(this.options.context, [...this.registry.values()]);
 	}
 
-	private process(context: HTMLElement, name?: string): void {
-		const definitions = name ? [this.registry.get(name)] : [...this.registry.entries()];
+	public destroy(): void {
+		this.running = false;
 
-		definitions.forEach((definition: ElementDefinition) => {
-			if (definition.options?.lazy) {
-				this.discover(context);
-			} else {
-				this.load(definition.name, false);
-			}
-		});
+		this.mutator.disconnect();
+		this.intersector.disconnect();
 	}
 
-	private discover(context: HTMLElement): void {
-		this.registry.forEach((definition) => {
+	private discover(context: HTMLElement, definitions: ElementDefinition[]): void {
+		definitions.forEach((definition) => {
 			const selector = this.options.selector(definition.name);
 			const elements = [...context.querySelectorAll(selector)];
 
@@ -103,18 +93,18 @@ export default class Loader {
 			}
 
 			if (elements.length > 0) {
-				if (definition.options?.defer) {
-					elements.forEach((element) => this.intersector.observe(element));
+				if (definition.options.defer) {
+					elements.forEach((element) => {
+						this.intersector.observe(element);
+					});
 				} else {
-					this.load(definition.name, false);
+					this.load(definition, false);
 				}
 			}
 		});
 	}
 
-	private load(name: string, defer: boolean = true): void {
-		const definition = this.registry.get(name);
-
+	private load(definition: ElementDefinition, defer: boolean = true): void {
 		if (definition && !window.customElements.get(definition.name)) {
 			execute(defer)(() => {
 				definition.callable().then((constructor) => {
@@ -129,13 +119,20 @@ export default class Loader {
 	private intersect(entries: IntersectionObserverEntry[]): void {
 		entries.forEach((entry) => {
 			if (entry.isIntersecting) {
+				const definition = this.registry.get(entry.target.tagName.toLowerCase());
+
 				this.intersector.unobserve(entry.target);
-				this.load(entry.target.tagName.toLowerCase());
+
+				if (definition) {
+					this.load(definition);
+				}
 			}
 		});
 	}
 
 	private mutate(records: MutationRecord[]): void {
+		const definitions = [...this.registry.values()];
+
 		records.forEach((record) => {
 			const element = record.target as HTMLElement;
 			const tag = element.tagName.toLowerCase();
@@ -143,11 +140,11 @@ export default class Loader {
 			if (
 				record.type === 'childList' &&
 				record.target.nodeType === Node.ELEMENT_NODE &&
-				!this.options.excludes?.includes(tag)
+				!this.options.ignore?.includes(tag)
 			) {
-				for (let node of record.addedNodes) {
-					this.process(node as HTMLElement);
-				}
+				record.addedNodes.forEach((node) => {
+					this.discover(node as HTMLElement, definitions);
+				});
 			}
 		});
 	}

@@ -1,22 +1,19 @@
-import Loader, {LoaderOptions, ElementOptions, ElementDefinition} from './loader';
+import Loader, { LoaderOptions, ElementOptions } from './loader';
 
-interface Definitions {
+interface DefinitionList {
 	[name: string]: () => Promise<CustomElementConstructor> | [
 		() => Promise<CustomElementConstructor>,
 		ElementOptions?,
 	];
 }
 
-export default function define(definitions: Definitions): (options?: LoaderOptions) => Loader {
+export default function define(definitions: DefinitionList): (options?: LoaderOptions) => Loader {
 	return (options) => {
 		const loader = new Loader(options);
 
 		Object.entries(definitions).forEach(([name, definition]) => {
-			if (Array.isArray(definition)) {
-				loader.define(name, definition[0], definition[1]);
-			} else {
-				loader.define(name, definition);
-			}
+			const [callable, options] = Array.isArray(definition) ? definition : [definition];
+			loader.define(name, callable, options);
 		});
 
 		loader.run();

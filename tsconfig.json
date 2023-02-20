@@ -1,3 +1,8 @@
 {
-	"extends": "@somehow-digital/typescript-config/configuration/basic.json",
+ 	"extends": "@somehow-digital/typescript-config/configuration/basic.json",
+	"include": ["src/"],
+ 	"compilerOptions": {
+		"noEmit": false,
+		"outDir": "./module/",
+	}
 }

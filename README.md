@@ -61,7 +61,6 @@ See file `loader.ts` for the default values.
 |------------|---------------|------------|:------:|:-------:|---------------------------------------------------------------|
 | `context`  | `HTMLElement` | `document` |   ✅    |         | The DOM context to search for components in.                  |
 | `margin`   | `string`      | `0px`      |   ✅    |         | The margin to use when loading deferred elements.             |
-| `lazy`     | `boolean`     | `true`     |   ✅    |    ✅    | Whether to load components lazily.                            |
 | `defer`    | `boolean`     | `true`     |   ✅    |    ✅    | Whether to defer loading components on entering the viewport. |
 | `observe`  | `boolean`     | `true`     |   ✅    |         | Whether to observe the DOM for newly inserted components.     |
 | `selector` | `function`    | `...`      |   ✅    |         | Selector to use when searching for components.                |
