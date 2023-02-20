@@ -1,32 +1,34 @@
 import { execute } from './utility';
 
 export interface LoaderOptions {
-	context: HTMLElement;
-	margin: string;
-	defer: boolean;
-	observe: boolean;
-	selector: (name: string) => string;
-	ignore: string[];
+	context?: HTMLElement;
+	margin?: string;
+	defer?: boolean;
+	observe?: boolean;
+	selector?: (name: string) => string;
+	ignore?: string[];
 }
 
+export type ElementCallable = () => Promise<CustomElementConstructor>;
+
 export interface ElementOptions {
-	defer: boolean;
+	defer?: boolean;
 }
 
 export interface ElementDefinition {
 	name: string;
-	callable: () => Promise<CustomElementConstructor>;
+	callable: ElementCallable;
 	options: ElementOptions;
 }
 
 export default class Loader {
 	private running: boolean = false;
-	private readonly options: LoaderOptions;
+	private readonly options: Required<LoaderOptions>;
 	private readonly registry: Map<string, ElementDefinition>;
 	private readonly intersector: IntersectionObserver;
 	private readonly mutator: MutationObserver;
 
-	public static defaults: LoaderOptions = {
+	private static readonly defaults: Required<LoaderOptions> = {
 		context: window.document.documentElement,
 		margin: '0%',
 		defer: true,
@@ -35,24 +37,24 @@ export default class Loader {
 		ignore: ['html', 'head', 'meta', 'link', 'style', 'script', 'noscript', 'template'],
 	};
 
-	public constructor(options?: Partial<LoaderOptions>) {
+	public constructor(options: LoaderOptions = {}) {
 		this.options = { ...Loader.defaults, ...options };
 		this.registry = new Map();
 
 		this.intersector = new IntersectionObserver(this.intersect.bind(this), {
-			root: options?.context ?? null,
+			root: options.context ?? null,
 			rootMargin: this.options.margin,
 		} as IntersectionObserverInit);
 
 		this.mutator = new MutationObserver(this.mutate.bind(this));
 	}
 
-	public define(name: string, callable: () => Promise<CustomElementConstructor>, options?: Partial<ElementOptions>): void {
+	public define(name: string, callable: ElementCallable, options: ElementOptions = {}): void {
 		const definition = {
 			name,
 			callable,
 			options: {
-				defer: options?.defer ?? this.options.defer,
+				defer: options.defer ?? this.options.defer,
 			},
 		};
 
@@ -93,7 +95,7 @@ export default class Loader {
 			}
 
 			if (elements.length > 0) {
-				if (definition.options.defer) {
+				if (definition.options?.defer) {
 					elements.forEach((element) => {
 						this.intersector.observe(element);
 					});
@@ -104,14 +106,14 @@ export default class Loader {
 		});
 	}
 
-	private load(definition: ElementDefinition, defer: boolean = true): void {
-		if (definition && !window.customElements.get(definition.name)) {
-			execute(defer)(() => {
-				definition.callable().then((constructor) => {
-					if (constructor) {
-						window.customElements.define(definition.name, constructor);
-					}
-				});
+	private load(definition: ElementDefinition, defer = true): void {
+		if (!window.customElements.get(definition.name)) {
+			execute(defer)(async () => {
+				const constructor = await definition.callable();
+
+				if (constructor) {
+					window.customElements.define(definition.name, constructor);
+				}
 			});
 		}
 	}

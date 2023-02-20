@@ -1,14 +1,11 @@
-import Loader, { LoaderOptions, ElementOptions } from './loader';
+import Loader, { LoaderOptions, ElementDefinition, ElementCallable } from './loader';
 
-interface DefinitionList {
-	[name: string]: () => Promise<CustomElementConstructor> | [
-		() => Promise<CustomElementConstructor>,
-		ElementOptions?,
-	];
+interface ElementDefinitionList {
+	[name: string]: ElementCallable | Omit<ElementDefinition, 'name'>;
 }
 
-export default function define(definitions: DefinitionList): (options?: LoaderOptions) => Loader {
-	return (options) => {
+export default function define(definitions: ElementDefinitionList): (options?: LoaderOptions) => Loader {
+	return (options: LoaderOptions = {}) => {
 		const loader = new Loader(options);
 
 		Object.entries(definitions).forEach(([name, definition]) => {
