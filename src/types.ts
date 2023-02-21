@@ -1,6 +1,7 @@
 export interface LoaderOptions {
 	context?: HTMLElement;
 	init?: boolean;
+	contextual?: boolean;
 	defer?: boolean;
 	observe?: boolean;
 	margin?: string;
@@ -15,6 +16,7 @@ export interface ElementDefinition {
 }
 
 export interface ElementOptions {
+	contextual?: boolean;
 	defer?: boolean;
 }
 

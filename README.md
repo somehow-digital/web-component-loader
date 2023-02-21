@@ -56,15 +56,16 @@ Options can be passed to the `define` function or the `Loader` class.
 Options can be set globally or some can be set per component definition.
 See file `loader.ts` for the default values.
 
-| Option     | Type          | Default    | Global | Element | Description                                                   |
-|------------|---------------|------------|:------:|:-------:|---------------------------------------------------------------|
-| `context`  | `HTMLElement` | `document` |   ✅    |         | The DOM context to search for components in.                  |
-| `init`     | `boolean`     | `true`     |   ✅    |         | Whether to run the loader immediately.                        |
-| `defer`    | `boolean`     | `true`     |   ✅    |    ✅    | Whether to defer loading components on entering the viewport. |
-| `observe`  | `boolean`     | `true`     |   ✅    |         | Whether to observe the DOM for newly inserted components.     |
-| `margin`   | `string`      | `0px`      |   ✅    |         | The margin to use when loading deferred elements.             |
-| `selector` | `function`    | `...`      |   ✅    |         | Selector to use when searching for components.                |
-| `excludes` | `string[]`    | `[...]`    |   ✅    |         | An array of element names to exclude from processing.         |
+| Option       | Type          | Default    | Global | Element | Description                                                   |
+|--------------|---------------|------------|:------:|:-------:|---------------------------------------------------------------|
+| `context`    | `HTMLElement` | `document` |   ✅    |         | The DOM context to search for components in.                  |
+| `init`       | `boolean`     | `true`     |   ✅    |         | Whether to run the loader immediately.                        |
+| `contextual` | `boolean`     | `true`     |   ✅    |    ✅    | Whether to load components found in the DOM context.          |
+| `defer`      | `boolean`     | `true`     |   ✅    |    ✅    | Whether to defer loading components on entering the viewport. |
+| `observe`    | `boolean`     | `true`     |   ✅    |         | Whether to observe the DOM for newly inserted components.     |
+| `margin`     | `string`      | `0px`      |   ✅    |         | The margin used when loading deferred elements.               |
+| `selector`   | `function`    | `...`      |   ✅    |         | Selector to use when searching for components.                |
+| `excludes`   | `string[]`    | `[...]`    |   ✅    |         | An array of element names to exclude from processing.         |
 
 ---
 

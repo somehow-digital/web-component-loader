@@ -11,6 +11,7 @@ export default class Loader {
 	private static readonly defaults: Required<LoaderOptions> = {
 		context: window.document.documentElement,
 		init: true,
+		contextual: true,
 		defer: true,
 		observe: true,
 		margin: '0%',
@@ -39,6 +40,7 @@ export default class Loader {
 			name,
 			callable,
 			options: {
+				contextual: options.contextual ?? this.options.contextual,
 				defer: options.defer ?? this.options.defer,
 			},
 		};
@@ -73,21 +75,25 @@ export default class Loader {
 
 	private discover(context: HTMLElement, definitions: ElementDefinition[]): void {
 		definitions.forEach((definition) => {
-			const selector = this.options.selector(definition.name);
-			const elements = [...context.querySelectorAll(selector)];
+			if (definition.options.contextual) {
+				const selector = this.options.selector(definition.name);
+				const elements = [...context.querySelectorAll(selector)];
 
-			if (context.matches(selector)) {
-				elements.unshift(context);
-			}
-
-			if (elements.length > 0) {
-				if (definition.options?.defer) {
-					elements.forEach((element) => {
-						this.intersector.observe(element);
-					});
-				} else {
-					this.load(definition, false);
+				if (context.matches(selector)) {
+					elements.unshift(context);
 				}
+
+				if (elements.length > 0) {
+					if (definition.options?.defer) {
+						elements.forEach((element) => {
+							this.intersector.observe(element);
+						});
+					} else {
+						this.load(definition, false);
+					}
+				}
+			} else {
+				this.load(definition, false);
 			}
 		});
 	}
