@@ -1,7 +1,7 @@
 {
 	"name": "@somehow-digital/web-component-loader",
 	"description": "Simple web component loader for loading web components lazily.",
-	"version": "0.0.0",
+	"version": "0.0.1-rc.0",
 	"type": "module",
 	"license": "MIT",
 	"private": true,
@@ -15,7 +15,7 @@
 		"module/"
 	],
 	"scripts": {
-	  	"build": "tsc",
+		"build": "tsc",
 		"lint": "prettier --check .",
 		"format": "prettier --write .",
 		"prepare": "husky install"
