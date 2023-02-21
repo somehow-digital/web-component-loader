@@ -64,7 +64,7 @@ See file `loader.ts` for the default values.
 | `defer`      | `boolean`     | `true`     |   ✅    |    ✅    | Whether to defer loading components on entering the viewport. |
 | `observe`    | `boolean`     | `true`     |   ✅    |         | Whether to observe the DOM for newly inserted components.     |
 | `margin`     | `string`      | `0px`      |   ✅    |         | The margin used when loading deferred elements.               |
-| `selector`   | `function`    | `...`      |   ✅    |         | Selector to use when searching for components.                |
+| `selector`   | `function`    | `...`      |   ✅    |    ✅    | Selector to use when searching for components.                |
 | `excludes`   | `string[]`    | `[...]`    |   ✅    |         | An array of element names to exclude from processing.         |
 
 ---

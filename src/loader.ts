@@ -41,6 +41,7 @@ export default class Loader {
 			options: {
 				contextual: options.contextual ?? this.options.contextual,
 				defer: options.defer ?? this.options.defer,
+				selector: options.selector ?? this.options.selector,
 			},
 		};
 
@@ -75,7 +76,7 @@ export default class Loader {
 	private discover(context: HTMLElement, definitions: ElementDefinition[]): void {
 		definitions.forEach((definition) => {
 			if (definition.options.contextual) {
-				const selector = this.options.selector(definition.name);
+				const selector = definition.options.selector(definition.name);
 				const elements = [...context.querySelectorAll(selector)];
 
 				if (context.matches(selector)) {

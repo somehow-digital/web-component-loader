@@ -12,12 +12,13 @@ export interface LoaderOptions {
 export interface ElementDefinition {
 	name: string;
 	callable: ElementCallable;
-	options: ElementOptions;
+	options: Required<ElementOptions>;
 }
 
 export interface ElementOptions {
 	contextual?: boolean;
 	defer?: boolean;
+	selector?: (name: string) => string;
 }
 
 export interface ElementDefinitionList {
