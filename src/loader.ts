@@ -19,7 +19,7 @@ export default class Loader {
 		ignore: ['html', 'head', 'meta', 'link', 'style', 'script', 'noscript', 'template'],
 	};
 
-	public constructor(options: Omit<LoaderOptions, 'context'> = {}) {
+	public constructor(options: LoaderOptions= {}) {
 		this.options = { ...Loader.defaults, ...options };
 		this.registry = new Map();
 

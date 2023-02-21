@@ -1,7 +1,7 @@
 import Loader from './loader';
 import { LoaderOptions, ElementDefinitionList } from './types';
 
-export default function define(definitions: ElementDefinitionList): (options: Omit<LoaderOptions, 'context'>) => Loader {
+export default function define(definitions: ElementDefinitionList): (options: LoaderOptions) => Loader {
 	return (options = {}): Loader => {
 		const loader = new Loader({...options, init: false });
 
