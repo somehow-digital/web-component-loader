@@ -1,5 +1,5 @@
 import Loader from './loader';
-import { LoaderOptions, ElementDefinitionList } from './types';
+import { LoaderOptions, ElementDefinitionList } from '../types';
 
 export default function define(definitions: ElementDefinitionList): (options: LoaderOptions) => Loader {
 	return (options = {}): Loader => {

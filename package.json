@@ -31,8 +31,6 @@
 		"module/"
 	],
 	"exports": {
-		".": "./module/loader.js",
-		"./loader": "./module/loader.js",
-		"./define": "./module/define.js"
+		".": "./module/index.js"
 	}
 }

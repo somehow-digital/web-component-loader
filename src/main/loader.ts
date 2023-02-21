@@ -1,5 +1,5 @@
-import { execute } from './utility';
-import { LoaderOptions, ElementDefinition, ElementOptions, ElementCallable } from './types';
+import { execute } from '../utility';
+import { LoaderOptions, ElementDefinition, ElementOptions, ElementCallable } from '../types';
 
 export default class Loader {
 	private running: boolean = false;
