@@ -1,8 +1,5 @@
-import Loader, { LoaderOptions, ElementDefinition, ElementCallable } from './loader';
-
-interface ElementDefinitionList {
-	[name: string]: ElementCallable | Omit<ElementDefinition, 'name'>;
-}
+import Loader from './loader';
+import { LoaderOptions, ElementDefinitionList } from './types';
 
 export default function define(definitions: ElementDefinitionList): (options?: LoaderOptions) => Loader {
 	return (options: LoaderOptions = {}) => {

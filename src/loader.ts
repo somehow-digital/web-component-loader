@@ -1,26 +1,5 @@
 import { execute } from './utility';
-
-export interface LoaderOptions {
-	context?: HTMLElement;
-	init?: boolean;
-	defer?: boolean;
-	observe?: boolean;
-	margin?: string;
-	selector?: (name: string) => string;
-	ignore?: string[];
-}
-
-export type ElementCallable = () => Promise<CustomElementConstructor>;
-
-export interface ElementOptions {
-	defer?: boolean;
-}
-
-export interface ElementDefinition {
-	name: string;
-	callable: ElementCallable;
-	options: ElementOptions;
-}
+import { LoaderOptions, ElementDefinition, ElementOptions, ElementCallable } from './types';
 
 export default class Loader {
 	private running: boolean = false;
