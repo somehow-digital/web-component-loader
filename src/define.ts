@@ -2,7 +2,7 @@ import Loader from './loader';
 import { LoaderOptions, ElementDefinitionList } from './types';
 
 export default function define(definitions: ElementDefinitionList): (options?: LoaderOptions) => Loader {
-	return (options: LoaderOptions = {}) => {
+	return (options: LoaderOptions = {}): Loader => {
 		const loader = new Loader({...options, init: false });
 
 		Object.entries(definitions).forEach(([name, definition]) => {
