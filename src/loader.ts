@@ -19,12 +19,11 @@ export default class Loader {
 		ignore: ['html', 'head', 'meta', 'link', 'style', 'script', 'noscript', 'template'],
 	};
 
-	public constructor(options: LoaderOptions = {}) {
+	public constructor(options: Omit<LoaderOptions, 'context'> = {}) {
 		this.options = { ...Loader.defaults, ...options };
 		this.registry = new Map();
 
 		this.intersector = new IntersectionObserver(this.intersect.bind(this), {
-			root: options.context ?? null,
 			rootMargin: this.options.margin,
 		} as IntersectionObserverInit);
 
@@ -128,16 +127,11 @@ export default class Loader {
 		const definitions = [...this.registry.values()];
 
 		records.forEach((record) => {
-			const element = record.target as HTMLElement;
-			const tag = element.tagName.toLowerCase();
-
-			if (
-				record.type === 'childList' &&
-				record.target.nodeType === Node.ELEMENT_NODE &&
-				!this.options.ignore?.includes(tag)
-			) {
-				record.addedNodes.forEach((node) => {
-					this.discover(node as HTMLElement, definitions);
+			if (record.type === 'childList') {
+				record.addedNodes.forEach((node: HTMLElement) => {
+					if (node.nodeType === Node.ELEMENT_NODE && !this.options.ignore?.includes(node.tagName.toLowerCase())) {
+						this.discover(node as HTMLElement, definitions);
+					}
 				});
 			}
 		});
