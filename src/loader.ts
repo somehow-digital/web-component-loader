@@ -66,6 +66,7 @@ export default class Loader {
 	public destroy(): void {
 		this.running = false;
 
+		this.registry.clear();
 		this.mutator.disconnect();
 		this.intersector.disconnect();
 	}
