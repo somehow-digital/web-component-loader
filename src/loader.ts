@@ -128,8 +128,10 @@ export default class Loader {
 
 		records.forEach((record) => {
 			if (record.type === 'childList') {
-				record.addedNodes.forEach((node: HTMLElement) => {
-					if (node.nodeType === Node.ELEMENT_NODE && !this.options.ignore?.includes(node.tagName.toLowerCase())) {
+				record.addedNodes.forEach((node) => {
+					const tag = (node as HTMLElement).tagName.toLowerCase();
+
+					if (node.nodeType === Node.ELEMENT_NODE && !this.options.ignore?.includes(tag)) {
 						this.discover(node as HTMLElement, definitions);
 					}
 				});
