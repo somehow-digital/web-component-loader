@@ -1,7 +1,7 @@
 {
 	"name": "@somehow-digital/web-component-loader",
 	"description": "Simple web component loader for loading web components lazily.",
-	"version": "0.0.1-rc.0",
+	"version": "0.0.1-rc.1",
 	"type": "module",
 	"license": "MIT",
 	"private": true,
