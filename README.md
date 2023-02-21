@@ -34,7 +34,6 @@ import Loader from '@somehow-digital/web-component-loader';
 const loader = new Loader(/* options */);
 loader.define('component-one', () => import('component-one.js'));
 loader.define('component-two', () => import('component-two.js'), /* options */);
-loader.run();
 ```
 
 **Function**
@@ -60,9 +59,10 @@ See file `loader.ts` for the default values.
 | Option     | Type          | Default    | Global | Element | Description                                                   |
 |------------|---------------|------------|:------:|:-------:|---------------------------------------------------------------|
 | `context`  | `HTMLElement` | `document` |   ✅    |         | The DOM context to search for components in.                  |
-| `margin`   | `string`      | `0px`      |   ✅    |         | The margin to use when loading deferred elements.             |
+| `init`     | `boolean`     | `true`     |   ✅    |         | Whether to run the loader immediately.                        |
 | `defer`    | `boolean`     | `true`     |   ✅    |    ✅    | Whether to defer loading components on entering the viewport. |
 | `observe`  | `boolean`     | `true`     |   ✅    |         | Whether to observe the DOM for newly inserted components.     |
+| `margin`   | `string`      | `0px`      |   ✅    |         | The margin to use when loading deferred elements.             |
 | `selector` | `function`    | `...`      |   ✅    |         | Selector to use when searching for components.                |
 | `excludes` | `string[]`    | `[...]`    |   ✅    |         | An array of element names to exclude from processing.         |
 

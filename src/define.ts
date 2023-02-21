@@ -6,7 +6,7 @@ interface ElementDefinitionList {
 
 export default function define(definitions: ElementDefinitionList): (options?: LoaderOptions) => Loader {
 	return (options: LoaderOptions = {}) => {
-		const loader = new Loader(options);
+		const loader = new Loader({...options, init: false });
 
 		Object.entries(definitions).forEach(([name, definition]) => {
 			const [callable, options] = Array.isArray(definition) ? definition : [definition];

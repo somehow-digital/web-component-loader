@@ -2,9 +2,10 @@ import { execute } from './utility';
 
 export interface LoaderOptions {
 	context?: HTMLElement;
-	margin?: string;
+	init?: boolean;
 	defer?: boolean;
 	observe?: boolean;
+	margin?: string;
 	selector?: (name: string) => string;
 	ignore?: string[];
 }
@@ -30,9 +31,10 @@ export default class Loader {
 
 	private static readonly defaults: Required<LoaderOptions> = {
 		context: window.document.documentElement,
-		margin: '0%',
+		init: true,
 		defer: true,
 		observe: true,
+		margin: '0%',
 		selector: (name) => `${name}:not(:defined)`,
 		ignore: ['html', 'head', 'meta', 'link', 'style', 'script', 'noscript', 'template'],
 	};
@@ -47,6 +49,10 @@ export default class Loader {
 		} as IntersectionObserverInit);
 
 		this.mutator = new MutationObserver(this.mutate.bind(this));
+
+		if (this.options.init) {
+			this.run();
+		}
 	}
 
 	public define(name: string, callable: ElementCallable, options: ElementOptions = {}): void {
@@ -66,9 +72,7 @@ export default class Loader {
 	}
 
 	public run(): void {
-		this.running = true;
-
-		if (this.options.observe) {
+		if (!this.running && this.options.observe) {
 			this.mutator.observe(this.options.context, {
 				childList: true,
 				subtree: true,
@@ -76,6 +80,8 @@ export default class Loader {
 		}
 
 		this.discover(this.options.context, [...this.registry.values()]);
+
+		this.running = true;
 	}
 
 	public destroy(): void {
