@@ -110,19 +110,17 @@ export default class Loader {
 	}
 
 	private import(definition: ElementDefinition): Promise<CustomElementConstructor> {
-		return new Promise<CustomElementConstructor>((resolve, reject) => {
+		return new Promise<CustomElementConstructor>(async (resolve) => {
 			if (definition.value) {
 				resolve(definition.value);
 			} else {
-				definition.callable().then((constructor) => {
-					if (constructor) {
-						definition.value = constructor;
-						window.customElements.define(definition.name, constructor);
-						resolve(constructor);
-					}
+				const constructor = await definition.callable();
 
-					reject();
-				});
+				if (constructor) {
+					definition.value = constructor;
+					window.customElements.define(definition.name, constructor);
+					resolve(constructor);
+				}
 			}
 		});
 	}
