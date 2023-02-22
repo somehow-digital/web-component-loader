@@ -13,6 +13,7 @@ export interface ElementDefinition {
 	name: string;
 	callable: ElementCallable;
 	options: Required<ElementOptions>;
+	value?: CustomElementConstructor;
 }
 
 export interface ElementOptions {

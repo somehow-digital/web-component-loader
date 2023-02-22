@@ -1,5 +1,4 @@
-import { execute } from '../utility.js';
-import { LoaderOptions, ElementDefinition, ElementOptions, ElementCallable } from '../types.js';
+import {ElementCallable, ElementDefinition, ElementOptions, LoaderOptions} from '../types.js';
 
 export default class Loader {
 	private running: boolean = false;
@@ -35,7 +34,7 @@ export default class Loader {
 	}
 
 	public define(name: string, callable: ElementCallable, options: ElementOptions = {}): void {
-		const definition = {
+		const definition: ElementDefinition = {
 			name,
 			callable,
 			options: {
@@ -52,6 +51,16 @@ export default class Loader {
 		}
 	}
 
+	public load(name: string): Promise<CustomElementConstructor> {
+		const definition = this.registry.get(name);
+
+		if (definition) {
+			return this.import(definition);
+		}
+
+		return Promise.reject(new Error(`Definition for element "${name}" is not defined.`));
+	}
+
 	public run(): void {
 		if (!this.running && this.options.observe) {
 			this.mutator.observe(this.options.context, {
@@ -60,7 +69,7 @@ export default class Loader {
 			});
 		}
 
-		this.discover(this.options.context, [...this.registry.values()]);
+		this.discover(this.options.context);
 
 		this.running = true;
 	}
@@ -68,12 +77,14 @@ export default class Loader {
 	public destroy(): void {
 		this.running = false;
 
-		this.registry.clear();
 		this.mutator.disconnect();
 		this.intersector.disconnect();
+		this.registry.clear();
 	}
 
-	private discover(context: HTMLElement, definitions: ElementDefinition[]): void {
+	private discover(context: HTMLElement, list?: ElementDefinition[]): void {
+		const definitions = list ?? [...this.registry.values()];
+
 		definitions.forEach((definition) => {
 			if (definition.options.contextual) {
 				const selector = definition.options.selector(definition.name);
@@ -89,49 +100,48 @@ export default class Loader {
 							this.intersector.observe(element);
 						});
 					} else {
-						this.load(definition, false);
+						this.load(definition.name);
 					}
 				}
 			} else {
-				this.load(definition, false);
+				this.load(definition.name);
 			}
 		});
 	}
 
-	private load(definition: ElementDefinition, defer = true): void {
-		if (!window.customElements.get(definition.name)) {
-			execute(defer)(async () => {
-				const constructor = await definition.callable();
+	private import(definition: ElementDefinition): Promise<CustomElementConstructor> {
+		return new Promise<CustomElementConstructor>((resolve, reject) => {
+			if (definition.value) {
+				resolve(definition.value);
+			} else {
+				definition.callable().then((constructor) => {
+					if (constructor) {
+						definition.value = constructor;
+						window.customElements.define(definition.name, constructor);
+						resolve(constructor);
+					}
 
-				if (constructor) {
-					window.customElements.define(definition.name, constructor);
-				}
-			});
-		}
+					reject();
+				});
+			}
+		});
 	}
 
 	private intersect(entries: IntersectionObserverEntry[]): void {
 		entries.forEach((entry) => {
 			if (entry.isIntersecting) {
-				const definition = this.registry.get(entry.target.tagName.toLowerCase());
-
 				this.intersector.unobserve(entry.target);
-
-				if (definition) {
-					this.load(definition);
-				}
+				this.load(entry.target.tagName.toLowerCase());
 			}
 		});
 	}
 
 	private mutate(records: MutationRecord[]): void {
-		const definitions = [...this.registry.values()];
-
 		records.forEach((record) => {
 			if (record.type === 'childList') {
 				record.addedNodes.forEach((node) => {
 					if (node.nodeType === Node.ELEMENT_NODE && !this.options.ignore?.includes((node as HTMLElement).tagName.toLowerCase())) {
-						this.discover(node as HTMLElement, definitions);
+						this.discover(node as HTMLElement);
 					}
 				});
 			}
