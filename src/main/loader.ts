@@ -13,6 +13,7 @@ export default class Loader {
 		contextual: true,
 		defer: true,
 		observe: true,
+		define: true,
 		margin: '0%',
 		selector: (name) => `${name}:not(:defined)`,
 		ignore: ['html', 'head', 'meta', 'link', 'style', 'script', 'noscript', 'template'],
@@ -33,13 +34,14 @@ export default class Loader {
 		}
 	}
 
-	public define(name: string, callable: ElementCallable, options: ElementOptions = {}): void {
+	public register(name: string, callable: ElementCallable, options: ElementOptions = {}): void {
 		const definition: ElementDefinition = {
 			name,
 			callable,
 			options: {
 				contextual: options.contextual ?? this.options.contextual,
 				defer: options.defer ?? this.options.defer,
+				define: options.define ?? this.options.define,
 				selector: options.selector ?? this.options.selector,
 			},
 		};
@@ -51,11 +53,15 @@ export default class Loader {
 		}
 	}
 
-	public load(name: string): Promise<CustomElementConstructor> {
+	public load(name: string): Promise<CustomElementConstructor | void> {
 		const definition = this.registry.get(name);
 
 		if (definition) {
-			return this.import(definition);
+			return this.import(definition).then((constructor) => {
+				if (definition.options.define) {
+					window.customElements.define(name, constructor);
+				}
+			});
 		}
 
 		return Promise.reject(new Error(`Definition for element "${name}" is not defined.`));
@@ -118,7 +124,6 @@ export default class Loader {
 
 				if (constructor) {
 					definition.value = constructor;
-					window.customElements.define(definition.name, constructor);
 					resolve(constructor);
 				}
 			}

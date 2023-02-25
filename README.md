@@ -32,8 +32,8 @@ to define components in one place and then run the loader in another.
 import Loader from '@somehow-digital/web-component-loader';
 
 const loader = new Loader(/* options */);
-loader.define('component-one', () => import('component-one.js'));
-loader.define('component-two', () => import('component-two.js'), /* options */);
+loader.register('component-one', () => import('component-one.js'));
+loader.register('component-two', () => import('component-two.js'), /* options */);
 ```
 
 **Function**
@@ -42,9 +42,9 @@ The function returns a function that can be called to run the loader.
 This is useful to run the loader independently of the component definitions.
 
 ```typescript
-import { define } from '@somehow-digital/web-component-loader';
+import { register } from '@somehow-digital/web-component-loader';
 
-define({
+register({
   'component-one': () => import('component-one.js'),
   'component-two': [() => import('component-two.js'), /* options */],
 })(/* options */);
@@ -52,7 +52,7 @@ define({
 
 ### Options
 
-Options can be passed to the `define` function or the `Loader` class.
+Options can be passed to the `register` function or the `Loader` class.
 Options can be set globally or some can be set per component definition.
 See file `loader.ts` for the default values.
 
@@ -63,6 +63,7 @@ See file `loader.ts` for the default values.
 | `contextual` | `boolean`     | `true`     |   ✅    |    ✅    | Whether to load components found in the DOM context.          |
 | `defer`      | `boolean`     | `true`     |   ✅    |    ✅    | Whether to defer loading components on entering the viewport. |
 | `observe`    | `boolean`     | `true`     |   ✅    |         | Whether to observe the DOM for newly inserted components.     |
+| `define`     | `boolean`     | `true`     |   ✅    |    ✅    | Whether to define components when loading them.               |
 | `margin`     | `string`      | `0px`      |   ✅    |         | The margin used when loading deferred elements.               |
 | `selector`   | `function`    | `...`      |   ✅    |    ✅    | Selector to use when searching for components.                |
 | `excludes`   | `string[]`    | `[...]`    |   ✅    |         | An array of element names to exclude from processing.         |

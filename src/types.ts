@@ -4,6 +4,7 @@ export interface LoaderOptions {
 	contextual?: boolean;
 	defer?: boolean;
 	observe?: boolean;
+	define?: boolean;
 	margin?: string;
 	selector?: (name: string) => string;
 	ignore?: string[];
@@ -19,6 +20,7 @@ export interface ElementDefinition {
 export interface ElementOptions {
 	contextual?: boolean;
 	defer?: boolean;
+	define?: boolean;
 	selector?: (name: string) => string;
 }
 
